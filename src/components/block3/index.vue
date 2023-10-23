@@ -53,9 +53,17 @@
 <style scoped>
 .modal__bottom-top {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 16px;
+}
+@media screen and (max-width: 405px) {
+	.modal__bottom-top {
+		justify-content: center;
+		gap: 8px;
+	}
+	
 }
 .modal__bottom-block {
 	margin-bottom: 12px;
