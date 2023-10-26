@@ -1,122 +1,116 @@
 <script setup>
-	import { BaseButton } from '../ui/index.js';
-	import { Block3 } from '@/components/index.js';
-	import { ref, computed } from 'vue';
+import { BaseButton } from '../ui/index.js';
+import { Block3 } from '@/components/index.js';
+import { ref, computed } from 'vue';
 
-	import { ElMessage } from 'element-plus'
-	import { Plus } from '@element-plus/icons-vue'
-	// import { useEventHandler } from '@/utils/eventhandler.js'
-	import { selectOrganizations } from '@/config/config.js'
-	import { useDropZone } from '@vueuse/core';
+import { ElMessage } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'	
+import { selectOrganizations } from '@/config/config.js'
+import { useDropZone } from '@vueuse/core';
 	
-	const refDropZone = ref();	
-	const inputt = ref();
-	const inputData = ref({
-		typeOrg: '',
-		orgName: '',
-		description: '',
-		imageUrl: ''		
-	})	
+const refDropZone = ref();	
+const inputt = ref();
+const inputData = ref({
+ typeOrg: '',
+ orgName: '',
+ description: '',
+ imageUrl: ''		
+})
+const isTrue = ref(false);
+const isVisibleBlock = ref(false);
+const { isOverDropZone } = useDropZone(refDropZone, onDrop);
 
-	const isTrue = ref(false);
-	const isVisibleBlock = ref(false);
-	const { isOverDropZone } = useDropZone(refDropZone, onDrop);
-
-	function onDrop(files) {
-		const file = files[0]
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      ElMessage.error('Avatar picture must be JPG or PNG format!');
-      return;
-    }
-    if (!inputData.value.imageUrl) {
-      inputData.value.imageUrl = URL.createObjectURL(file);
-    }
-	}
-	function onInputChange(event) {
-    onDrop(event.target.files);
-	}	
-	function saveData() {		
-		isTrue.value = true;
-		// console.log('save')		
-		// const obj = Object.entries(inputData.value);		
-		for(let el in inputData.value) {
-			if(inputData.value[el] === '') {				
-				ElMessage.error('НЕ Заполнено');
-				isTrue.value = false;
-				return
-			}							
-		}
-		isVisibleBlock.value = false;	
-
-	}
-	const inpDataForm = computed(() => {										
-		for(let el in inputData.value) {
-			if(inputData.value[el] === '') {
-				isTrue.value = false;						
-				return
-			}
-			else { 				
-				return inputData.value; 
-			}						
-		}					
-	})	
-	function clearForm() {		
-		const obj = Object.entries(inputData.value);		
-		for(let [ key, entries ] of obj) { inputData.value[key] = '';	}
-		isTrue.value = false;
-	}
-	
+function onDrop(files) {
+ const file = files[0]
+ if (!['image/jpeg', 'image/png'].includes(file.type)) {
+  ElMessage.error('Avatar picture must be JPG or PNG format!');
+  return;
+ }
+ if (!inputData.value.imageUrl) {
+  inputData.value.imageUrl = URL.createObjectURL(file);
+ }
+}
+function onInputChange(event) {
+ onDrop(event.target.files);
+}	
+function saveData() {		
+ isTrue.value = true;
+ // console.log('save')		
+ // const obj = Object.entries(inputData.value);		
+ for(let el in inputData.value) {
+  if(inputData.value[el] === '') {				
+   ElMessage.error('НЕ Заполнено');
+   isTrue.value = false;
+  return
+  }							
+ }
+ isVisibleBlock.value = false;	
+}
+const inpDataForm = computed(() => {										
+ for(let el in inputData.value) {
+  if(inputData.value[el] === '') {
+   isTrue.value = false;						
+   return
+  }
+  else { return inputData.value; }						
+ }					
+})	
+function clearForm() {		
+ const obj = Object.entries(inputData.value);		
+ for(let [ key, entries ] of obj) { inputData.value[key] = '';	}
+ isTrue.value = false;
+}	
 </script>
 <template>
-	<div class="modal__container">		
-		<div class="modal__header">
-			<h2 class="modal__header-title">Организация</h2>
-			<p class="modal__header-text">Назване организации, логотип и описание</p>
-			<div class="header__button">
-				<BaseButton
-					title="Добавить"
-					@click="isVisibleBlock = true; isTrue = false"
-				>
-					<template	#default>
-						<img src="@/assets/image/icon/plus_16.svg" alt="icon-plus">
-					</template>
-				</BaseButton>
-			</div>			
-		</div>
+<div class="modal__container">		
+ <div class="modal__header">
+ <h2 class="modal__header-title">Организация</h2>
+ <p class="modal__header-text">Назване организации, логотип и описание</p>
+ <div class="header__button">
+  <BaseButton
+   title="Добавить"
+   @click="isVisibleBlock = true; isTrue = false"
+  >
+   <template #default>
+    <img src="@/assets/image/icon/plus_16.svg" alt="icon-plus">
+   </template>
+  </BaseButton>
+ </div>			
+</div>
 
-		<div class="modal__body" v-if="isVisibleBlock">
-			<div class="modal__body-top">
-				<h2 class="modal__body-top-org">Организация</h2>
-				<div class="modal__body-top-btn">
-					<BaseButton
-						@click="clearForm"
-						title="Отменить"
-						customButton="custom_button"
-					>
-						<template	#default>
-							<img src="@/assets/image/icon/cross.svg" alt="icon-plus">
-						</template>
-					</BaseButton>
-				</div>
-			</div>			
-			<form class="modal__body-form">
-				<div class="modal__body-input block__type">				
-				<label class="block-input-type"><img class="block-input-img" src="@/assets/image/icon/star_.svg" alt="star-icon">Тип</label>
-				<el-select v-model="inputData.typeOrg" class="m-2 block-input" placeholder="Select">
-					<el-option
-						v-for="item in selectOrganizations"
-						:key="item.id"						
-						:value="item.type"
-					/>
-  			</el-select>
-			</div>
-			<div class="modal__body-input block__name">
-				<label class="block-input-name"><img class="block-input-img" src="@/assets/image/icon/star_.svg" alt="star-icon">Название организации</label>
-				<el-input placeholder="Please input" v-model="inputData.orgName"/>				
-			</div>
-			<div class="modal__body-input">
-				<label class="block-input-description"><img class="block-input-img" src="@/assets/image/icon/star_.svg" alt="star-icon">Описание</label>				
-				<el-input
+<div class="modal__body" v-if="isVisibleBlock">
+ <div class="modal__body-top">
+ <h2 class="modal__body-top-org">Организация</h2>
+ <div class="modal__body-top-btn">
+ <BaseButton
+  @click="clearForm"
+  title="Отменить"
+  customButton="custom_button"
+ >
+  <template #default>
+   <img src="@/assets/image/icon/cross.svg" alt="icon-plus">
+  </template>
+ </BaseButton>
+ </div>
+</div>			
+<form class="modal__body-form">
+ <div class="modal__body-input block__type">				
+ <label class="block-input-type"><img class="block-input-img" src="@/assets/image/icon/star_.svg" alt="star-icon">Тип</label>
+ <el-select v-model="inputData.typeOrg" class="m-2 block-input" placeholder="Select">
+  <el-option
+   v-for="item in selectOrganizations"
+   :key="item.id"						
+   :value="item.type"
+   />
+  </el-select>
+ </div>
+ <div class="modal__body-input block__name">
+  <label class="block-input-name"><img class="block-input-img" src="@/assets/image/icon/star_.svg" alt="star-icon">Название организации</label>
+  <el-input placeholder="Please input" v-model="inputData.orgName"/>				
+ </div>
+ <div class="modal__body-input">
+ <label class="block-input-description"><img class="block-input-img" src="@/assets/image/icon/star_.svg" alt="star-icon">Описание</label>				
+ <el-input
 					v-model="inputData.description"
 					:autosize="{ minRows: 2, maxRows: 4 }"
 					type="textarea"
